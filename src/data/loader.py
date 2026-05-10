@@ -117,8 +117,10 @@ class DataLoader:
             mask = df["player_id"].isna() & df["player_name"].notna()
             if mask.any():
                 logger.debug(f"Generating synthetic IDs for {mask.sum():,} players using their names.")
-                # Simple hash-based ID for consistency
-                df.loc[mask, "player_id"] = df.loc[mask, "player_name"].apply(lambda x: hash(str(x)) % (10**8))
+                import hashlib
+                def stable_hash(text):
+                    return int(hashlib.md5(str(text).encode()).hexdigest(), 16) % (10**8)
+                df.loc[mask, "player_id"] = df.loc[mask, "player_name"].apply(stable_hash)
             
             df["player_id"] = pd.to_numeric(df["player_id"], errors="coerce").astype("Int64")
             
