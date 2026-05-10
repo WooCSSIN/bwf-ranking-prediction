@@ -12,8 +12,6 @@ __pycache__/
 .Python
 
 # Project specific
-data/
-models/
 logs/
 reports/
 mlruns/
