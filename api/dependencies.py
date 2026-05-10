@@ -37,36 +37,22 @@ def get_predictor(draw: str, region: str) -> BWFPredictor:
 def get_latest_features(draw: str, region: str) -> Tuple[pd.DataFrame, pd.DataFrame, str]:
     """
     Get the latest engineered features to make predictions.
+    Reads from a tiny precomputed CSV to prevent memory exhaustion on cloud deployments.
     Returns: (features_df, player_meta_df, prediction_date_str)
     """
-    global _global_clean_df
-    if _global_clean_df is None:
-        loader = DataLoader()
-        try:
-            raw_df = loader.load("bwf_cleaned.csv")
-        except FileNotFoundError:
-            raise HTTPException(status_code=500, detail="Data file bwf_cleaned.csv not found on server.")
+    import os
+    
+    file_path = f"data/processed/latest_features_{draw}_{region}.csv"
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Precomputed features not found for {draw}/{region}. Please run preparation script."
+        )
         
-        preprocessor = BWFPreprocessor()
-        _global_clean_df = preprocessor.fit_transform(raw_df)
-
-    clean_df = _global_clean_df
+    latest_features = pd.read_csv(file_path)
+    latest_features["date"] = pd.to_datetime(latest_features["date"])
     
-    # 3. Extract latest state (we only want the most recent date per player for prediction)
-    latest_date = clean_df["date"].max()
-    # Filter to only the latest date
-    current_df = clean_df[clean_df["date"] == latest_date].copy()
-    
-    # 4. Feature engineering
-    fe = FeatureEngineer()
-    features_df = fe.transform(clean_df, draw=draw, region=region)
-    
-    # Filter features to only the latest date for actual inference
-    latest_features = features_df[features_df["date"] == latest_date].copy()
-    
-    if latest_features.empty:
-        raise HTTPException(status_code=404, detail="No feature data available to make predictions.")
-        
+    latest_date = latest_features["date"].max()
     player_meta = latest_features[["player_id", "player_name", "country_code"]].copy()
     
     # In real world time-series, the prediction date is typically 1 period ahead of latest data
