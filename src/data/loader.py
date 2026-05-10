@@ -113,13 +113,19 @@ class DataLoader:
             
         # Handle player_id: If missing, create a synthetic ID from player_name
         if "player_id" in df.columns:
+            # Normalize names first for stable ID generation
+            if "player_name" in df.columns:
+                df["player_name"] = df["player_name"].str.strip().str.title()
+                
             # Use name as backup for ID to prevent data loss in drop_duplicates
             mask = df["player_id"].isna() & df["player_name"].notna()
             if mask.any():
                 logger.debug(f"Generating synthetic IDs for {mask.sum():,} players using their names.")
                 import hashlib
                 def stable_hash(text):
-                    return int(hashlib.md5(str(text).encode()).hexdigest(), 16) % (10**8)
+                    # Remove all extra spaces for maximum stability
+                    cleaned = " ".join(str(text).split())
+                    return int(hashlib.md5(cleaned.encode()).hexdigest(), 16) % (10**8)
                 df.loc[mask, "player_id"] = df.loc[mask, "player_name"].apply(stable_hash)
             
             df["player_id"] = pd.to_numeric(df["player_id"], errors="coerce").astype("Int64")
