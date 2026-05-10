@@ -31,9 +31,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=builder /app/wheels /wheels
 RUN pip install --no-cache-dir /wheels/*
 
-# Copy application source code
+# Copy application source code and necessary artifacts
 COPY src/ ./src/
 COPY api/ ./api/
+COPY data/ ./data/
+COPY models/ ./models/
 
 # Create a non-root user for security best practices
 RUN adduser --disabled-password --gecos '' appuser \
