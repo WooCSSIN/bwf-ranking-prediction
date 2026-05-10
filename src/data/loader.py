@@ -103,17 +103,28 @@ class DataLoader:
         return df
 
     def _coerce_types(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Standardize dtypes for downstream processing."""
+        """Standardize dtypes and handle missing identity info."""
         if "date" in df.columns:
             df["date"] = pd.to_datetime(df["date"], errors="coerce")
         if "rank" in df.columns:
             df["rank"] = pd.to_numeric(df["rank"], errors="coerce")
         if "points" in df.columns:
             df["points"] = pd.to_numeric(df["points"], errors="coerce")
+            
+        # Handle player_id: If missing, create a synthetic ID from player_name
         if "player_id" in df.columns:
+            # Use name as backup for ID to prevent data loss in drop_duplicates
+            mask = df["player_id"].isna() & df["player_name"].notna()
+            if mask.any():
+                logger.debug(f"Generating synthetic IDs for {mask.sum():,} players using their names.")
+                # Simple hash-based ID for consistency
+                df.loc[mask, "player_id"] = df.loc[mask, "player_name"].apply(lambda x: hash(str(x)) % (10**8))
+            
             df["player_id"] = pd.to_numeric(df["player_id"], errors="coerce").astype("Int64")
+            
         if "draw" in df.columns:
             df["draw"] = df["draw"].str.upper().str.strip()
         if "region" in df.columns:
-            df["region"] = df["region"].str.strip()
+            # Fill missing regions as 'Unknown' so they aren't dropped immediately
+            df["region"] = df["region"].fillna("Unknown").str.strip()
         return df

@@ -71,7 +71,13 @@ class FeatureEngineer:
         # Per-player feature generation
         result_parts = []
         for _, player_df in subset.groupby("player_id", group_keys=False):
-            result_parts.append(self._add_player_features(player_df.copy()))
+            if len(player_df) > self.LAG_PERIODS[-1]: # Need enough data for lags
+                result_parts.append(self._add_player_features(player_df.copy()))
+        
+        if not result_parts:
+            logger.warning(f"No players in {draw}/{region} have enough history (>{self.LAG_PERIODS[-1]} months) to generate features.")
+            return pd.DataFrame()
+
         result = pd.concat(result_parts, ignore_index=True)
 
         # Global features (rank relative to field)
