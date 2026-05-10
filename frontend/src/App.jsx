@@ -4,7 +4,7 @@ const API_URL = "https://bwf-ranking-prediction.onrender.com/api/v1/rankings";
 
 function App() {
   const [draw, setDraw] = useState("MS");
-  const [region, setRegion] = useState("Asia");
+  const [region, setRegion] = useState("Global");
   const [topN, setTopN] = useState(10);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
@@ -69,8 +69,9 @@ function App() {
               onChange={(e) => setRegion(e.target.value)}
               className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all hover:border-slate-700"
             >
-              <option value="Asia">Asia</option>
-              <option value="Europe">Europe</option>
+              <option value="Global">Toàn cầu (Global)</option>
+              <option value="Asia">Châu Á (Asia)</option>
+              <option value="Europe">Châu Âu (Europe)</option>
             </select>
           </div>
 
