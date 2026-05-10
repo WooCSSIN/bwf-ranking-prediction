@@ -1,0 +1,9 @@
+# DVC Configuration for BWF Ranking Prediction
+# Data Version Control — tracks large data files without storing them in Git
+
+[core]
+    remote = local_storage
+    autostage = true
+
+[remote "local_storage"]
+    url = ./dvc_storage

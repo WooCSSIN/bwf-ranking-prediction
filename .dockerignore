@@ -1,0 +1,28 @@
+# Git and environments
+.git/
+.gitignore
+.env
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Project specific
+data/
+models/
+logs/
+reports/
+mlruns/
+dvc_storage/
+.dvc/
+.pytest_cache/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

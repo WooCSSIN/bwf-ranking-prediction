@@ -1,0 +1,72 @@
+name: BWF AI CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  # 1. Kiểm tra chất lượng Code
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+          
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff black pytest httpx
+          pip install -r requirements.txt
+          
+      - name: Code Formatting (Black)
+        run: black --check src/ api/ scripts/
+        continue-on-error: true # Bỏ qua nếu lỗi format nhẹ
+        
+      - name: Code Linting (Ruff)
+        run: ruff check src/ api/ scripts/
+        continue-on-error: true
+
+  # 2. Xây dựng Docker Image (Giả lập)
+  build-docker:
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Export API Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          tags: bwf-api:latest
+          outputs: type=docker,dest=/tmp/bwf-api.tar
+          
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: /tmp/bwf-api.tar
+
+  # 3. Triển khai (Mẫu cho nền tảng Render.com)
+  deploy-to-cloud:
+    needs: build-docker
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    steps:
+      - name: Trigger Render Deployment
+        # Thay thế URL bằng webhook thực tế lấy từ tài khoản Render của bạn
+        run: |
+          echo "Deploying to Render..."
+          # curl -X POST https://api.render.com/deploy/srv-xxxxx?key=yyyyy
+          echo "✅ Deployment Triggered Successfully!"

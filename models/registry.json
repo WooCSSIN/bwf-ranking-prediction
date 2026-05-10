@@ -1,0 +1,36 @@
+{
+  "MS_Asia": [
+    {
+      "version": "v1.0.0",
+      "filename": "lgbm_ms_asia_v1.0.0.pkl",
+      "draw": "MS",
+      "region": "Asia",
+      "metrics": {
+        "mae_cv": 472.2414444668001,
+        "rmse_cv": 689.2092054181419,
+        "r2_cv": 0.9982987467450876,
+        "mae_std": 160.56062942746806
+      },
+      "feature_count": 25,
+      "mlflow_run_id": null,
+      "saved_at": "2026-05-10T09:45:30.188963",
+      "stage": "Staging"
+    },
+    {
+      "version": "v2.0.0",
+      "filename": "lgbm_ms_asia_v2.0.0.pkl",
+      "draw": "MS",
+      "region": "Asia",
+      "metrics": {
+        "mae_cv": 472.2414444668001,
+        "rmse_cv": 689.2092054181419,
+        "r2_cv": 0.9982987467450876,
+        "mae_std": 160.56062942746806
+      },
+      "feature_count": 25,
+      "mlflow_run_id": "6b7e3ef5a69a47f1b3005f43a8d3a651",
+      "saved_at": "2026-05-10T10:18:42.179237",
+      "stage": "Staging"
+    }
+  ]
+}
