@@ -30,6 +30,16 @@ app.include_router(health.router, prefix=api_prefix)
 app.include_router(rankings.router, prefix=api_prefix)
 app.include_router(predict.router, prefix=api_prefix)
 
+@app.get("/")
+async def root():
+    """Root endpoint providing basic info."""
+    return {
+        "message": f"Welcome to {settings.API_TITLE}",
+        "version": settings.API_VERSION,
+        "docs": "/docs",
+        "status": "Running"
+    }
+
 @app.on_event("startup")
 async def startup_event():
     logger.info(f"🚀 Starting {settings.API_TITLE} - {settings.API_VERSION}")
